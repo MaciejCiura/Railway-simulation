@@ -1,0 +1,64 @@
+
+Temat: Kolej
+
+Opis: Mapa dworców kolejowych z widocznymi pociągami, kolejki ludzi do pociągu na dworcu, konduktor wpuszczający do pociągu.
+
+Wątki: Wątek obsługujący pociąg, konduktor,
+
+Zasoby: Pociągi, dworce, kolejki do pociągu, tory.
+
+Sekcje krytyczne: konduktor - wpuszczanie do pociągu, pociąg - odjazd z peronu,
+
+Zmienne warunkowe: status pociągu (pełny/nie), długość kolejki, status dworca (czy jest pociąg)
+
+Potencjalne zagłodzenia, zakleszczenia: Dwa pociągi chcą jechać jednym torem.
+
+
+Program:
+
+Mapa -> tory, dworce -> podróżni, pociągi -> pasażerowie, konduktorzy
+
+Klasy:
+
+mapa
+tor
+dworzec
+pociąg
+wagon (?)
+konduktor
+
+
+Wątki:
+printowanie
+obsługa klawiatury
+pociągi
+konduktorzy
+dworce
+dodawanie i usuwanie ludzikow
+
+Mapa:
+graf ważony
+każdy node to dworzec
+listy sąsiedztwa w dworcach
+
+Dworzec:
+n pociągów na dworcu
+kolejka podróżnych
+kto zdąży ten jedzie
+
+Podróżny:
+TOF - ilość dworców do odwiedzenia
+randomowy pociąg
+
+
+Pociąg
+
+Sekcje krytyczne: konduktor - wpuszczanie do pociągu, pociąg - odjazd z peronu,
+
+Zmienne warunkowe: status pociągu (pełny/nie), długość kolejki, status dworca (czy jest pociąg)
+
+
+TODO
+Mapa z dworcami i torami
+Pociąg jadący z dworca na dworzec
+kolejka podróżnych
