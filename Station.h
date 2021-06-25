@@ -9,6 +9,7 @@
 #include <vector>
 #include <queue>
 #include <mutex>
+#include <atomic>
 
 #include "Track.h"
 #include "Passenger.h"
@@ -28,8 +29,6 @@ public:
 	
 	const unsigned int id_;
 	
-	void create_train(unsigned int id);
-	
 	const std::vector<std::shared_ptr<Track>> &get_tracks() const;
 	
 	const std::vector<std::shared_ptr<Train>> &get_trains() const;
@@ -42,15 +41,17 @@ public:
 	
 	void assign_tracks(std::vector<std::shared_ptr<Track>> connections);
 	
-	void start_passenger_producer_process();
+	void start_thread(std::atomic<bool> &runing);
 
+	void stop_thread();
+	
 	void remove_train(unsigned int id);
 	
 	std::mutex passenger_queue_mutex_;
 	
 	std::condition_variable queue_full;
 private:
-	std::thread passenger_producer_;
+	std::thread thread_;
 	std::vector<std::shared_ptr<Track>> tracks_;
 	std::vector<std::shared_ptr<Train>> trains_;
 	std::queue<std::unique_ptr<Passenger>> passengers_;

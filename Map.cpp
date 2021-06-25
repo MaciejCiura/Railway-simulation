@@ -45,7 +45,6 @@ void Map::assign_tracks()
 				station_tracks.emplace_back(track);
 		}
 		stations_[i]->assign_tracks(station_tracks);
-		
 	}
 }
 

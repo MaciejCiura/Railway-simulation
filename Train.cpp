@@ -9,6 +9,7 @@
 #include <iostream>
 #include <mutex>
 #include <curses.h>
+#include <atomic>
 
 std::mt19937 Random::s_RandomEngine;
 std::uniform_int_distribution<std::mt19937::result_type> Random::s_RandomDistribution;
@@ -20,40 +21,38 @@ Train::Train(unsigned int id, const std::shared_ptr<Station> &station)
 
 }
 
-void Train::thread_func()
+void Train::start_thread(std::atomic<bool> &running)
 {
-	while (1)
-	{
-		std::this_thread::sleep_for(std::chrono::seconds(5 + Random::get_int() % 4));
-		
-		
-		choose_track_rand();
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		
-		set_destination();
-		
-		state_ = BOARDING;
-		board_train();
-		
-		std::this_thread::sleep_for(std::chrono::seconds(Random::get_int() % 4));
-
-		state_ = MOVING;
-		move_train();
-		
-		release_track();
-		
-		state_ = UNBOARDING;
-		unboard_train();
-		
-		state_ = WAITING;
-		std::this_thread::sleep_for(std::chrono::seconds(Random::get_int() % 4));
-		distance_pct_ = 0;
-	}
+	thread_ = std::thread([this, &running](){
+		while (running)
+		{
+			std::this_thread::sleep_for(std::chrono::seconds(5 + Random::get_int() % 4));
+			
+			choose_track_rand();
+			
+			set_destination();
+			
+			state_ = BOARDING;
+			board_train(std::ref(running));
+			
+			state_ = MOVING;
+			move_train(std::ref(running));
+			
+			release_track();
+			
+			state_ = UNBOARDING;
+			unboard_train();
+			
+			state_ = WAITING;
+			std::this_thread::sleep_for(std::chrono::seconds(Random::get_int() % 4));
+			distance_pct_ = 0;
+		}
+	});
 }
 
-void Train::move_train()
+void Train::move_train(std::atomic<bool> &running_)
 {
-	while (distance_pct_ < 1)
+	while (distance_pct_ < 1 && running_)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(150));
 		distance_pct_ += 0.01;
@@ -72,11 +71,11 @@ void Train::unboard_train()
 	}
 }
 
-void Train::board_train()
+void Train::board_train(std::atomic<bool> &running_)
 {
 	station_.lock()->remove_train(id_);
 	
-	while(!full_)
+	while(!full_ && running_)
 	{
 		if(board_passenger())
 		{
@@ -85,6 +84,8 @@ void Train::board_train()
 				full_ = true;
 		}
 	}
+	std::this_thread::sleep_for(std::chrono::seconds(Random::get_int() % 4));
+	
 }
 
 void Train::set_destination()
@@ -116,12 +117,9 @@ void Train::choose_track_rand()
 	track_.lock()->track_in_use.wait(track_lock, [this]{return track_.lock()->free_;});
 	track_.lock()->free_ = false;
 	track_lock.unlock();
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
-void Train::start_thread()
-{
-	thread_ = std::thread(&Train::thread_func, this);
-}
 
 void Train::stop_thread()
 {

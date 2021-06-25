@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 #include <queue>
+#include <atomic>
 #include "Track.h"
 #include "Passenger.h"
 #include "MapMember.h"
@@ -29,11 +30,9 @@ public:
 	Train(const Train& other) = delete;
 	Train& operator=(const Train&) = delete;
 	
-	void thread_func();
-	
 	void stop_thread();
 	
-	void start_thread();
+	void start_thread(std::atomic<bool> &running);
 	
 	bool board_passenger();
 	
@@ -69,17 +68,18 @@ private:
 	std::weak_ptr<Track> track_;
 	std::weak_ptr<Station> station_;
 	
+	
 	void choose_track_rand();
 	
 	void release_track();
 	
 	void set_destination();
 	
-	void board_train();
+	void board_train(std::atomic<bool> &running_);
 	
 	void unboard_train();
 	
-	void move_train();
+	void move_train(std::atomic<bool> &running_);
 };
 
 

@@ -9,7 +9,7 @@ find_package(Threads REQUIRED)
 find_package(Curses REQUIRED)
 
 
-add_executable(Projekt2 main.cpp Map.cpp Station.cpp TicketInspector.cpp Track.cpp Passenger.cpp Train.cpp Renderer.cpp)
+add_executable(Projekt2 main.cpp Map.cpp Station.cpp Track.cpp Passenger.cpp Train.cpp Renderer.cpp)
 
 
 if(TARGET Threads::Threads)

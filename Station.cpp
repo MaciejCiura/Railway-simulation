@@ -18,11 +18,11 @@ const std::vector<std::shared_ptr<Track>> &Station::get_tracks() const
 	return tracks_;
 }
 
-void Station::start_passenger_producer_process()
+void Station::start_thread(std::atomic<bool> &runing)
 {
 	//TODO add synchronization
-	passenger_producer_ = std::thread([this](){
-		while(1)
+	thread_ = std::thread([this, &runing](){
+		while(runing)
 		{
 			if (passengers_.size() < 25)
 			{
@@ -38,11 +38,6 @@ void Station::start_passenger_producer_process()
 const std::vector<std::shared_ptr<Train>> &Station::get_trains() const
 {
 	return trains_;
-}
-
-void Station::create_train(unsigned int id)
-{
-	trains_.emplace_back(std::make_shared<Train>(id, shared_from_this()));
 }
 
 const std::queue<std::unique_ptr<Passenger>> &Station::get_passengers() const
@@ -70,4 +65,9 @@ void Station::add_train(std::shared_ptr<Train> train)
 void Station::remove_train(unsigned int id)
 {
 	trains_.erase(std::remove_if(trains_.begin(), trains_.end(), [id](std::shared_ptr<Train> &train){return train->id_==id;}), trains_.end());
+}
+
+void Station::stop_thread()
+{
+	thread_.join();
 }
